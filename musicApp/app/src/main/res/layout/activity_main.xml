@@ -29,4 +29,12 @@
         android:text="Button"
         tools:layout_editor_absoluteX="278dp"
         tools:layout_editor_absoluteY="16dp" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="186dp"
+        android:layout_height="212dp"
+        app:srcCompat="@mipmap/ic_launcher"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="149dp" />
 </android.support.constraint.ConstraintLayout>
