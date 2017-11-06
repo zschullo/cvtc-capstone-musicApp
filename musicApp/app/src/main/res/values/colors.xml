@@ -2,5 +2,8 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#f22</color>
+    <color name="background">#333</color>
+    <color name="progress">#D12D2D</color>
+    <color name="progressBackground">#444</color>
 </resources>
