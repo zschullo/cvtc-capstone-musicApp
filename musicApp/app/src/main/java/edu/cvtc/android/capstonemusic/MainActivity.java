@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -11,6 +12,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton playButton;
     private ImageButton fastForwardButton;
     private ImageButton reverseButton;
+
+    private SeekBar seekBar;
+
     private Toast toast = null;
 
 
@@ -25,8 +29,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fastForwardButton = (ImageButton) findViewById(R.id.fastForwardButton);
         reverseButton = (ImageButton) findViewById(R.id.reverseButton);
 
+        seekBar = (SeekBar) findViewById(R.id.musicBar);
+
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
+        reverseButton.setOnClickListener(this);
 
     }
 
