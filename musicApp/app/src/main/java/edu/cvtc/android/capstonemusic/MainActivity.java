@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (view == playButton) {
             displayToast("You've clicked play");
+
         }else{
             displayToast("You've clicked fast forward");
         }
