@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
         reverseButton.setOnClickListener(this);
+        mediaPlayer = MediaPlayer.create(this, R.raw.defaultsong);
 
     }
 
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (view == playButton) {
             displayToast("You've clicked play");
-            mediaPlayer = MediaPlayer.create(this, R.raw.defaultsong);
+
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 playButton.setImageResource(R.drawable.play);
