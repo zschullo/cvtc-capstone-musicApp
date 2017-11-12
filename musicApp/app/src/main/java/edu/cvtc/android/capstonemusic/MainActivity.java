@@ -1,20 +1,20 @@
 package edu.cvtc.android.capstonemusic;
 
-import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    // TODO: Remove unused buttons after Drew removes them.
     private ImageButton playButton;
-    //private ImageButton stopButton;
     private ImageButton fastForwardButton;
     private ImageButton reverseButton;
-    //private ImageButton muteButton;
+
+    private SeekBar seekBar;
+
     private Toast toast = null;
 
 
@@ -26,21 +26,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Gets the id after the main activity is created.
         playButton = (ImageButton) findViewById(R.id.playButton);
-        //stopButton = (ImageButton) findViewById(R.id.stopButton);
         fastForwardButton = (ImageButton) findViewById(R.id.fastForwardButton);
         reverseButton = (ImageButton) findViewById(R.id.reverseButton);
-        //muteButton = (ImageButton) findViewById(R.id.muteButton);
+
+        seekBar = (SeekBar) findViewById(R.id.musicBar);
 
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
+        reverseButton.setOnClickListener(this);
 
     }
 
-    // This will get fired off when you click play.
+    // This will get fired off when you click play and any other button.
     @Override
     public void onClick(View view) {
 
-        if (view == fastForwardButton) {
+        if (view == playButton) {
             displayToast("You've clicked play");
         }else{
             displayToast("You've clicked fast forward");
