@@ -1,5 +1,6 @@
 package edu.cvtc.android.capstonemusic;
 
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +17,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SeekBar seekBar;
 
     private Toast toast = null;
+    private MediaPlayer mediaPlayer = null;
 
 
     @Override
@@ -43,9 +45,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (view == playButton) {
             displayToast("You've clicked play");
+            mediaPlayer = MediaPlayer.create(this, R.raw.defaultsong);
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                playButton.setImageResource(R.drawable.play);
+            } else {
+                mediaPlayer.start();
+                playButton.setImageResource(R.drawable.pause);
+            }
 
-        }else{
-            displayToast("You've clicked fast forward");
+
+
         }
 
 
