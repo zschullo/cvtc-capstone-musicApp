@@ -103,6 +103,26 @@
         android:indeterminate="false"
         android:visibility="visible"
         />
+    <TextView
+        android:id="@+id/timeInitial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0:00"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toTopOf="@id/musicBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"/>
+    <TextView
+        android:id="@+id/timeTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="20:00"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toTopOf="@id/musicBar"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="10dp"/>
 
 
 
