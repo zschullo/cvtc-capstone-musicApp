@@ -7,6 +7,8 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ImageButton playButton;
@@ -17,12 +19,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Toast toast = null;
 
+    // Database Impl
+    private Music music;
+    private AppDatabase database;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        database = AppDatabase.getDatabase(getApplicationContext());
 
+        // TODO: Remove after testing.
+        // Clean up for testing purposes.
+        database.musicDAO().removeAllMusic();
+
+        // Add test data.
+        List<Music> musicList = database.musicDAO().getAllMusic();
+
+        if (musicList.size() == 0) {
+            database.musicDAO().addMusic(new Music(1, "Happy Birthday", "Everyone", 0));
+            music = database.musicDAO().getAllMusic().get(0);
+            displayToast(music.title);
+        }
 
         // Gets the id after the main activity is created.
         playButton = (ImageButton) findViewById(R.id.playButton);
