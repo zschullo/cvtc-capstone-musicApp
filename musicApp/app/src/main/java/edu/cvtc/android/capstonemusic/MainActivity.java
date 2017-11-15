@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         reverseButton.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
         setupMusic(R.raw.defaultsong);
-        progressTimerStart();
 
 
     }
@@ -81,11 +80,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 playButton.setImageResource(R.drawable.play);
-                progressEnable = false;
             } else {
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.pause);
-                progressEnable = true;
             }
 
 
@@ -101,21 +98,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (toast == null || toast.getView().getWindowVisibility() != View.VISIBLE) {
             toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
             toast.show();
-        }
-    }
-    private void progressTimerStart() {
-        int currentPosition = 0;
-        int total = mediaPlayer.getDuration();
-        while (mediaPlayer != null && currentPosition < total) {
-            try {
-                if (progressEnable) {
-                    Thread.sleep(1000);
-                    currentPosition = mediaPlayer.getCurrentPosition();
-                    int pos = currentPosition/1000;
-                    seekBar.setProgress(pos);
-                }
-            } catch (Exception e) {
-            }
         }
     }
 
@@ -135,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             playButton.setImageResource(R.drawable.play);
-            progressEnable = false;
         }
 
     }
