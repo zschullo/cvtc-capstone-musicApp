@@ -1,6 +1,7 @@
 package edu.cvtc.android.capstonemusic;
 
 import android.media.MediaPlayer;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -19,7 +20,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView totalTimeLabel;
 
     private SeekBar seekBar;
-    private boolean progressEnable = true;
     private Toast toast = null;
     private MediaPlayer mediaPlayer = null;
 
@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Music music;
     private AppDatabase database;
     private Genre genre;
+    private Handler mHandler = new Handler();
+
 
 
 
@@ -53,7 +55,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         setupMusic(R.raw.arma_puros_plus_nothing_else);
-        //progressTimerStart();
+
+        MainActivity.this.runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+
+
+                if(mediaPlayer != null){
+                    int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                    seekBar.setProgress(mCurrentPosition);
+                }
+                mHandler.postDelayed(this, 1000);
+            }
+        });
 
     }
 
@@ -65,13 +81,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             displayToast("You've clicked play");
 
             if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
+                mediaPlayer.pause();
                 playButton.setImageResource(R.drawable.play);
-                progressEnable = false;
             } else {
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.pause);
-                progressEnable = true;
             }
         }
     }
@@ -90,17 +104,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        mediaPlayer.seekTo(progress * 1000);
-        int minute = progress / 60;
-        int second = progress % 60;
-        String time = minute + ":" + second;
-        timeLabel.setText(time);
+        if (mediaPlayer != null && fromUser) {
+            mediaPlayer.seekTo(progress * 1000);
+        }
+            int minute = progress / 60;
+            int second = progress % 60;
+            String time = minute + ":" + second;
+            timeLabel.setText(time);
     }
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
         if (mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
+            mediaPlayer.pause();
             playButton.setImageResource(R.drawable.play);
 
         }
