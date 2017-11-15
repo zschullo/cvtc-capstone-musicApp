@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     private ImageButton playButton;
     private ImageButton fastForwardButton;
@@ -49,13 +49,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playButton = (ImageButton) findViewById(R.id.playButton);
         fastForwardButton = (ImageButton) findViewById(R.id.fastForwardButton);
         reverseButton = (ImageButton) findViewById(R.id.reverseButton);
-
         seekBar = (SeekBar) findViewById(R.id.musicBar);
-
+        // Sets Listeners
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
         reverseButton.setOnClickListener(this);
-        mediaPlayer = MediaPlayer.create(this, R.raw.defaultsong);
+        seekBar.setOnSeekBarChangeListener(this);
+        setupMusic(R.raw.defaultsong);
+
 
     }
 
@@ -89,4 +90,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toast.show();
         }
     }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        mediaPlayer.seekTo(progress);
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            playButton.setImageResource(R.drawable.play);
+        }
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    public void setupMusic(int song) {
+        mediaPlayer = MediaPlayer.create(this, song);
+
+
+        seekBar.setProgress(0);
+        seekBar.setMax(mediaPlayer.getDuration());
+    }
+
+    
 }
