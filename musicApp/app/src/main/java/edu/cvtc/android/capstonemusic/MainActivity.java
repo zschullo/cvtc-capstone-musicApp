@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setupMusic(R.raw.defaultsong);
 
 
+
     }
 
 
@@ -80,9 +81,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 playButton.setImageResource(R.drawable.play);
+                progressEnable = false;
             } else {
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.pause);
+                progressEnable = true;
             }
 
 
@@ -103,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         mediaPlayer.seekTo(progress * 1000);
@@ -117,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             playButton.setImageResource(R.drawable.play);
+
         }
 
     }
