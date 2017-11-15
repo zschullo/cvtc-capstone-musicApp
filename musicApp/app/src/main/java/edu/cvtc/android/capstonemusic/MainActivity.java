@@ -5,7 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -16,14 +18,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton fastForwardButton;
     private ImageButton reverseButton;
 
-    private SeekBar seekBar;
+    private TextView timeLabel;
+    private TextView totalTimeLabel;
 
+    private SeekBar seekBar;
+    private boolean progressEnable = true;
     private Toast toast = null;
     private MediaPlayer mediaPlayer = null;
 
     // Database Impl
     private Music music;
     private AppDatabase database;
+
 
 
     @Override
@@ -50,15 +56,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fastForwardButton = (ImageButton) findViewById(R.id.fastForwardButton);
         reverseButton = (ImageButton) findViewById(R.id.reverseButton);
         seekBar = (SeekBar) findViewById(R.id.musicBar);
+        timeLabel = (TextView) findViewById(R.id.timeInitial);
+        totalTimeLabel = (TextView) findViewById(R.id.timeTotal);
         // Sets Listeners
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
         reverseButton.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
         setupMusic(R.raw.defaultsong);
+        progressTimerStart();
 
 
     }
+
+
 
     // This will get fired off when you click play and any other button.
     @Override
@@ -70,9 +81,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 playButton.setImageResource(R.drawable.play);
+                progressEnable = false;
             } else {
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.pause);
+                progressEnable = true;
             }
 
 
@@ -90,10 +103,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toast.show();
         }
     }
+    private void progressTimerStart() {
+        int currentPosition = 0;
+        int total = mediaPlayer.getDuration();
+        while (mediaPlayer != null && currentPosition < total) {
+            try {
+                if (progressEnable) {
+                    Thread.sleep(1000);
+                    currentPosition = mediaPlayer.getCurrentPosition();
+                    int pos = currentPosition/1000;
+                    seekBar.setProgress(pos);
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+
+
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        mediaPlayer.seekTo(progress);
+        mediaPlayer.seekTo(progress * 1000);
+        int minute = progress / 60;
+        int second = progress % 60;
+        String time = minute + ":" + second;
+        timeLabel.setText(time);
     }
 
     @Override
@@ -101,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             playButton.setImageResource(R.drawable.play);
+            progressEnable = false;
         }
 
     }
@@ -115,8 +150,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         seekBar.setProgress(0);
-        seekBar.setMax(mediaPlayer.getDuration());
+        seekBar.setMax(mediaPlayer.getDuration()/1000);
+        int minute = mediaPlayer.getDuration() / 60000;
+        int second = (mediaPlayer.getDuration() % 60000) / 1000;
+        String time = minute + ":" + second;
+        totalTimeLabel.setText(time);
+
     }
 
-    
+
 }
