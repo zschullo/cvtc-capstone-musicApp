@@ -18,12 +18,18 @@ public interface GenreDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void addGenre(Genre genre);
 
-    @Query("select * from genre where musicId = :musicId")
-    List<Genre> findGenreForMusic(int musicId);
+//    @Query("select * from genre where musicId = :musicId")
+//    List<Genre> findGenreForMusic(int musicId);
+
+    @Query("select * from genre")
+    List<Genre> getAllGenres();
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateGenre(Genre genre);
 
     @Query("delete from genre where id = :id")
     void delete(long id);
+
+    @Query("delete from genre")
+    void removeAllGenres();
 }
