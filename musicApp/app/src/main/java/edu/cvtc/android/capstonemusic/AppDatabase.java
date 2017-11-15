@@ -9,7 +9,7 @@ import android.content.Context;
  * Created by Beast on 11/13/17.
  */
 
-@Database(entities = {Music.class, Genre.class}, version = 16, exportSchema = false)
+@Database(entities = {Music.class, Genre.class}, version = 18, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
