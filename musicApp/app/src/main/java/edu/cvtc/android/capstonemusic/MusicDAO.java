@@ -19,7 +19,7 @@ public interface MusicDAO {
     void addMusic(Music music);
 
     @Query("select * from music")
-    public List<Music> getAllMusic();
+    List<Music> getAllMusic();
 
     @Query("select * from music where id = :musicId")
     public List<Music> getMusic(long musicId);

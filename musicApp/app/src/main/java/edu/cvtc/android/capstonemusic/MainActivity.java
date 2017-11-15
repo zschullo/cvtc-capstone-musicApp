@@ -5,12 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
@@ -29,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Database Impl
     private Music music;
     private AppDatabase database;
+    private Genre genre;
 
 
 
@@ -36,20 +34,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        database = AppDatabase.getDatabase(getApplicationContext());
 
-        // TODO: Remove after testing.
-        // Clean up for testing purposes.
-        database.musicDAO().removeAllMusic();
-
-        // Add test data.
-        List<Music> musicList = database.musicDAO().getAllMusic();
-
-        if (musicList.size() == 0) {
-            database.musicDAO().addMusic(new Music(1, "Happy Birthday", "Everyone", 0));
-            music = database.musicDAO().getAllMusic().get(0);
-            displayToast(music.title);
-        }
+        createDatabase();
 
         // Gets the id after the main activity is created.
         playButton = (ImageButton) findViewById(R.id.playButton);
@@ -58,18 +44,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seekBar = (SeekBar) findViewById(R.id.musicBar);
         timeLabel = (TextView) findViewById(R.id.timeInitial);
         totalTimeLabel = (TextView) findViewById(R.id.timeTotal);
+
         // Sets Listeners
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
         reverseButton.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
-        setupMusic(R.raw.defaultsong);
 
 
+        setupMusic(R.raw.arma_puros_plus_nothing_else);
+        //progressTimerStart();
 
     }
-
-
 
     // This will get fired off when you click play and any other button.
     @Override
@@ -87,12 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playButton.setImageResource(R.drawable.pause);
                 progressEnable = true;
             }
-
-
-
         }
-
-
     }
 
     private void displayToast(String message) {
@@ -131,6 +112,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @Override
+    protected void onDestroy() {
+        AppDatabase.destroyInstance();
+        super.onDestroy();
+    }
+
     public void setupMusic(int song) {
         mediaPlayer = MediaPlayer.create(this, song);
 
@@ -144,5 +131,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public void createDatabase() {
+        database = AppDatabase.getDatabase(getApplicationContext());
+
+        database.genreDAO().removeAllGenres();
+        database.musicDAO().removeAllMusic();
+
+        // Adds a new Genre to the table.
+        database.genreDAO().addGenre(new Genre(1, "Rock"));
+        database.genreDAO().addGenre(new Genre(2, "Metal"));
+        database.genreDAO().addGenre(new Genre(3, "Classical"));
+        database.genreDAO().addGenre(new Genre(4, "Jazz"));
+
+        genre = database.genreDAO().getAllGenres().get(3);
+        displayToast(genre.genreName);
+
+        database.musicDAO().addMusic(new Music(1,
+                "arma_puros_plus_nothing_else.mp3",
+                "Zach",
+                2,
+                0));
+
+        music = database.musicDAO().getMusic(1).get(0);
+        displayToast("Added " + music.title + ", GenreId: " + music.genreId);
+
+
+
+        // TODO: Remove after testing.
+        // Clean up for testing purposes.
+        //database.musicDAO().removeAllMusic();
+
+        // Add test data.
+        //List<Music> musicList = database.musicDAO().getAllMusic();
+
+
+
+//        if (musicList.size() == 0) {
+//            database.musicDAO().addMusic(new Music(1, "Happy Birthday", "Everyone", 0));
+//            music = database.musicDAO().getAllMusic().get(0);
+//            displayToast(music.title);
+//        }
+    }
 
 }
