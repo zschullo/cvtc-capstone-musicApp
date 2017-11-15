@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         reverseButton.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
 
+
         setupMusic(R.raw.arma_puros_plus_nothing_else);
         //progressTimerStart();
 
@@ -83,21 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toast.show();
         }
     }
-    private void progressTimerStart() {
-        int currentPosition = 0;
-        int total = mediaPlayer.getDuration();
-        while (mediaPlayer != null && currentPosition < total) {
-            try {
-                if (progressEnable) {
-                    Thread.sleep(1000);
-                    currentPosition = mediaPlayer.getCurrentPosition();
-                    int pos = currentPosition/1000;
-                    seekBar.setProgress(pos);
-                }
-            } catch (Exception e) {
-            }
-        }
-    }
+
 
 
 
@@ -115,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             playButton.setImageResource(R.drawable.play);
-            progressEnable = false;
+
         }
 
     }
