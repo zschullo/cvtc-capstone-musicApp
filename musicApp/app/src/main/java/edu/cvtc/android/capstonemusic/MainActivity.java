@@ -110,9 +110,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mediaPlayer != null && fromUser) {
             mediaPlayer.seekTo(progress * 1000);
         }
+
         int minute = progress / 60;
         int second = progress % 60;
-        String time = minute + ":" + second;
+        String secondFormatted = "";
+        if (second < 10 ) {
+
+           secondFormatted = "0" + second;
+        } else {
+            secondFormatted = "" + second;
+        }
+        String time = minute + ":" + secondFormatted;
         timeLabel.setText(time);
     }
 
@@ -146,7 +154,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seekBar.setMax(mediaPlayer.getDuration() / 1000);
         int minute = mediaPlayer.getDuration() / 60000;
         int second = (mediaPlayer.getDuration() % 60000) / 1000;
-        String time = minute + ":" + second;
+        String secondFormatted = "";
+        if (second < 10 ) {
+
+            secondFormatted = "0" + second;
+        } else {
+            secondFormatted = "" + second;
+        }
+        String time = minute + ":" + secondFormatted;
         totalTimeLabel.setText(time);
 
     }
