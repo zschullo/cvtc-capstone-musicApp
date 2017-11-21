@@ -1,14 +1,22 @@
 package edu.cvtc.android.capstonemusic;
 
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.Console;
+import java.lang.reflect.Field;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
@@ -28,8 +36,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AppDatabase database;
     private Genre genre;
     private Handler mHandler = new Handler();
-
-
 
 
     @Override
@@ -62,8 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
 
 
-
-                if(mediaPlayer != null){
+                if (mediaPlayer != null) {
                     int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
                     seekBar.setProgress(mCurrentPosition);
                 }
@@ -100,17 +105,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-
-
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (mediaPlayer != null && fromUser) {
             mediaPlayer.seekTo(progress * 1000);
         }
-            int minute = progress / 60;
-            int second = progress % 60;
-            String time = minute + ":" + second;
-            timeLabel.setText(time);
+        int minute = progress / 60;
+        int second = progress % 60;
+        String time = minute + ":" + second;
+        timeLabel.setText(time);
     }
 
     @Override
@@ -139,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         seekBar.setProgress(0);
-        seekBar.setMax(mediaPlayer.getDuration()/1000);
+        seekBar.setMax(mediaPlayer.getDuration() / 1000);
         int minute = mediaPlayer.getDuration() / 60000;
         int second = (mediaPlayer.getDuration() % 60000) / 1000;
         String time = minute + ":" + second;
@@ -162,31 +165,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         genre = database.genreDAO().getAllGenres().get(3);
         displayToast(genre.genreName);
 
-        database.musicDAO().addMusic(new Music(1,
-                "arma_puros_plus_nothing_else.mp3",
-                "Zach",
-                2,
-                0));
+        MediaMetadataRetriever songMetaData = new MediaMetadataRetriever();
 
-        music = database.musicDAO().getMusic(1).get(0);
-        displayToast("Added " + music.title + ", GenreId: " + music.genreId);
+        Field[] fields = R.raw.class.getFields();
 
+        for (int count = 0; count < fields.length; count++) {
 
+            // The AssetFileDescriptor will get the song from the raw folder.
+            // This will then let us use the song's metadata to populate the database.
+            AssetFileDescriptor assetFileDescriptor = null;
+            try {
 
-        // TODO: Remove after testing.
-        // Clean up for testing purposes.
-        //database.musicDAO().removeAllMusic();
+                assetFileDescriptor = getResources().openRawResourceFd(fields[count].getInt(null));
 
-        // Add test data.
-        //List<Music> musicList = database.musicDAO().getAllMusic();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
 
+            songMetaData.setDataSource(assetFileDescriptor.getFileDescriptor(), assetFileDescriptor.getStartOffset(), assetFileDescriptor.getLength());
 
+            String artist = songMetaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
 
-//        if (musicList.size() == 0) {
-//            database.musicDAO().addMusic(new Music(1, "Happy Birthday", "Everyone", 0));
-//            music = database.musicDAO().getAllMusic().get(0);
-//            displayToast(music.title);
-//        }
+            // Quick and dirty way to assign genreId so we don't have to
+            // manually enter it.
+            final int random = new Random().nextInt((4 - 1) + 1) + 1;
+
+            String songName = fields[count].getName() + ".mp3";
+
+            database.musicDAO().addMusic(new Music(count,
+                    songName,
+                    artist,
+                    random,
+                    0));
+
+            music = database.musicDAO().getMusic(count).get(0);
+            displayToast("Added " + music.title + ", GenreId: " + music.genreId);
+        }
+
     }
-
 }
