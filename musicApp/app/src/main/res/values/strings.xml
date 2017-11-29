@@ -9,4 +9,5 @@
     <string name="timeinit">0:00</string>
     <string name="musictitle">musicTitle</string>
     <string name="author">author</string>
+    <string name="configure">Configure</string>
 </resources>
