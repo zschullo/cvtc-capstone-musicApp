@@ -29,6 +29,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton reverseButton;
     private ImageButton mapButton;
 
+    private ImageButton listButton;
+
+    private ImageButton mapButton;
+
+
     private TextView timeLabel;
     private TextView totalTimeLabel;
 
@@ -59,13 +64,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seekBar = (SeekBar) findViewById(R.id.musicBar);
         timeLabel = (TextView) findViewById(R.id.timeInitial);
         totalTimeLabel = (TextView) findViewById(R.id.timeTotal);
+        listButton = (ImageButton) findViewById(R.id.listButton);
 
         // Sets Listeners
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
         reverseButton.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
+<<<<<<< HEAD
         mapButton.setOnClickListener(this);
+=======
+        listButton.setOnClickListener(this);
+>>>>>>> 70014380786990aa13218fc79855f0648956da78
 
 
         setupMusic(R.raw.arma_puros_plus_nothing_else);
@@ -102,13 +112,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.pause);
             }
+<<<<<<< HEAD
         } else if (view == mapButton) {
             displayToast("The map button was pressed");
             Intent intent = new Intent(this, MapsActivity.class);
             startActivity(intent);
+=======
+        } else if (view == listButton) {
+
+                launchActivity(SongListActivity.class);
+        } else if (view == mapButton) {
+>>>>>>> 70014380786990aa13218fc79855f0648956da78
         }
 
 
+    }
+    private void launchActivity(Class activity) {
+
+        Intent intent = new Intent(this, activity);
+        startActivity(intent);
     }
 
     private void displayToast(String message) {
