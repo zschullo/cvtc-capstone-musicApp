@@ -1,5 +1,6 @@
 package edu.cvtc.android.capstonemusic;
 
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -23,6 +24,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton playButton;
     private ImageButton fastForwardButton;
     private ImageButton reverseButton;
+
+    private ImageButton listButton;
+
+    private ImageButton mapButton;
+
 
     private TextView timeLabel;
     private TextView totalTimeLabel;
@@ -52,12 +58,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seekBar = (SeekBar) findViewById(R.id.musicBar);
         timeLabel = (TextView) findViewById(R.id.timeInitial);
         totalTimeLabel = (TextView) findViewById(R.id.timeTotal);
+        listButton = (ImageButton) findViewById(R.id.listButton);
 
         // Sets Listeners
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
         reverseButton.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
+        listButton.setOnClickListener(this);
 
 
         setupMusic(R.raw.arma_puros_plus_nothing_else);
@@ -92,7 +100,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.pause);
             }
+        } else if (view == listButton) {
+
+                launchActivity(SongListActivity.class);
+        } else if (view == mapButton) {
         }
+    }
+    private void launchActivity(Class activity) {
+
+        Intent intent = new Intent(this, activity);
+        startActivity(intent);
     }
 
     private void displayToast(String message) {
