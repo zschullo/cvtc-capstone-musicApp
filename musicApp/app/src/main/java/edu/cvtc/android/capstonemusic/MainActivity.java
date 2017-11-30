@@ -1,6 +1,11 @@
 package edu.cvtc.android.capstonemusic;
 
 import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -10,11 +15,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
 import java.io.Console;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Random;
 
@@ -23,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton playButton;
     private ImageButton fastForwardButton;
     private ImageButton reverseButton;
+    private ImageView songImage;
 
     private TextView timeLabel;
     private TextView totalTimeLabel;
@@ -37,13 +46,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Genre genre;
     private Handler mHandler = new Handler();
 
+    // Music Impl
+    MediaMetadataRetriever songMetaData = new MediaMetadataRetriever();
+    byte[] rawArt;
+    Bitmap bitmap = null;
+    BitmapFactory.Options options = new BitmapFactory.Options();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        createDatabase();
+        songImage = (ImageView) findViewById(R.id.imageView);
 
         // Gets the id after the main activity is created.
         playButton = (ImageButton) findViewById(R.id.playButton);
@@ -53,14 +68,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timeLabel = (TextView) findViewById(R.id.timeInitial);
         totalTimeLabel = (TextView) findViewById(R.id.timeTotal);
 
+
         // Sets Listeners
         playButton.setOnClickListener(this);
         fastForwardButton.setOnClickListener(this);
         reverseButton.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
 
+        createDatabase();
 
-        setupMusic(R.raw.arma_puros_plus_nothing_else);
+        setupMusic(R.raw.judah_and_the_lion_insane);
 
         MainActivity.this.runOnUiThread(new Runnable() {
 
@@ -149,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void setupMusic(int song) {
         mediaPlayer = MediaPlayer.create(this, song);
 
+        displayImage(song);
 
         seekBar.setProgress(0);
         seekBar.setMax(mediaPlayer.getDuration() / 1000);
@@ -181,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         genre = database.genreDAO().getAllGenres().get(3);
         displayToast(genre.genreName);
 
-        MediaMetadataRetriever songMetaData = new MediaMetadataRetriever();
 
         Field[] fields = R.raw.class.getFields();
 
@@ -218,5 +235,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             displayToast("Added " + music.title + ", GenreId: " + music.genreId);
         }
 
+    }
+
+    private void displayImage(int song) {
+
+        AssetFileDescriptor assetFileDescriptor;
+        assetFileDescriptor = getResources().openRawResourceFd(song);
+
+        songMetaData.setDataSource(assetFileDescriptor.getFileDescriptor(), assetFileDescriptor.getStartOffset(), assetFileDescriptor.getLength());
+
+        // This will get the image from the meta data and convert it to a Drawable object.
+        // It will then set the main image.
+        if (songMetaData.getEmbeddedPicture() != null) {
+            rawArt = songMetaData.getEmbeddedPicture();
+            bitmap = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.length, options);
+
+            Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+
+            songImage.setImageDrawable(drawable);
+
+        } else {
+            try {
+                songImage.setImageResource(R.drawable.placeholder);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
