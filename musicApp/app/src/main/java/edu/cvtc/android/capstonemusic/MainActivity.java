@@ -1,5 +1,6 @@
 package edu.cvtc.android.capstonemusic;
 
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -9,18 +10,19 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.ByteArrayInputStream;
+import com.google.android.gms.maps.MapView;
 import java.io.Console;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -32,6 +34,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton fastForwardButton;
     private ImageButton reverseButton;
     private ImageView songImage;
+
+    private ImageButton listButton;
+
+    private ImageButton mapButton;
+
 
     private TextView timeLabel;
     private TextView totalTimeLabel;
@@ -53,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     BitmapFactory.Options options = new BitmapFactory.Options();
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,9 +72,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playButton = (ImageButton) findViewById(R.id.playButton);
         fastForwardButton = (ImageButton) findViewById(R.id.fastForwardButton);
         reverseButton = (ImageButton) findViewById(R.id.reverseButton);
+        mapButton = (ImageButton) findViewById(R.id.mapButton);
         seekBar = (SeekBar) findViewById(R.id.musicBar);
         timeLabel = (TextView) findViewById(R.id.timeInitial);
         totalTimeLabel = (TextView) findViewById(R.id.timeTotal);
+        listButton = (ImageButton) findViewById(R.id.listButton);
 
 
         // Sets Listeners
@@ -76,6 +86,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seekBar.setOnSeekBarChangeListener(this);
 
         createDatabase();
+
+        mapButton.setOnClickListener(this);
+
+        listButton.setOnClickListener(this);
+
+
 
         setupMusic(R.raw.judah_and_the_lion_insane);
 
@@ -93,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+
+
     }
 
     // This will get fired off when you click play and any other button.
@@ -109,7 +127,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.pause);
             }
+
+        } else if (view == mapButton) {
+            displayToast("The map button was pressed");
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
+
+        } else if (view == listButton) {
+
+                launchActivity(SongListActivity.class);
         }
+
+
+    }
+    private void launchActivity(Class activity) {
+
+        Intent intent = new Intent(this, activity);
+        startActivity(intent);
     }
 
     private void displayToast(String message) {
@@ -197,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         database.genreDAO().addGenre(new Genre(4, "Jazz"));
 
         genre = database.genreDAO().getAllGenres().get(3);
-        displayToast(genre.genreName);
+        //displayToast(genre.genreName);
 
 
         Field[] fields = R.raw.class.getFields();
@@ -232,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     0));
 
             music = database.musicDAO().getMusic(count).get(0);
-            displayToast("Added " + music.title + ", GenreId: " + music.genreId);
+            //displayToast("Added " + music.title + ", GenreId: " + music.genreId);
         }
 
     }

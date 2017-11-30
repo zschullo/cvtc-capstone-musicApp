@@ -7,4 +7,8 @@
     <string name="add_widget">Add widget</string>
     <string name="timeTotal">20:00</string>
     <string name="timeinit">0:00</string>
+    <string name="musictitle">musicTitle</string>
+    <string name="author">author</string>
+    <string name="configure">Configure</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
