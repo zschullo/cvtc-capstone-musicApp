@@ -40,8 +40,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         com.google.android.gms.location.LocationListener {
 
     private TextView playTextField;
-    private double Latitude;
-    private double Longitude;
     private LatLng latLng;
 
     private Toast toast = null;
@@ -172,11 +170,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     @SuppressLint("MissingPermission")
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        getCurrentLocation();
+
+        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                // GPS location can be null if GPS is switched off
+                if (location != null) {
+                    onLocationChanged(location);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("TAG", "Error trying to get last GPS location");
+                e.printStackTrace();
+            }
+        });
 
     }
 
