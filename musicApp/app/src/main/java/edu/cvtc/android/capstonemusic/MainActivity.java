@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton fastForwardButton;
     private ImageButton reverseButton;
 
+    private static final int SONG_LIST_RESULT_CODE = 0;
+
     private ImageButton listButton;
 
     private ImageButton mapButton;
@@ -110,13 +112,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else if (view == mapButton) {
             displayToast("The map button was pressed");
-            Intent intent = new Intent(this, MapsActivity.class);
-            startActivity(intent);
+            launchActivity(MapsActivity.class);
         } else if (view == listButton) {
 
-                launchActivity(SongListActivity.class);
+            Intent intent = new Intent(this, SongListActivity.class);
+            startActivityForResult(intent, SONG_LIST_RESULT_CODE);
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // check that it is the SecondActivity with an OK result
+        if (requestCode == SONG_LIST_RESULT_CODE) {
+            if (resultCode == RESULT_OK) {
+
+                // get String data from Intent
+                int song = data.getIntExtra("song",R.raw.arma_puros_plus_nothing_else);
+
+                // set text view with string
+                setupMusic(song);
+            }
+        }
     }
     private void launchActivity(Class activity) {
 
@@ -235,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // manually enter it.
             final int random = new Random().nextInt((4 - 1) + 1) + 1;
 
-            String songName = fields[count].getName() + ".mp3";
+            String songName = fields[count].getName();
 
             database.musicDAO().addMusic(new Music(count,
                     songName,
