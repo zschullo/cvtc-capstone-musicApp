@@ -17,7 +17,6 @@ import java.util.List;
  */
 
 public class SongListActivity extends ListActivity {
-    private ListView songList;
     private ArrayList<Music> allMusic;
     private AppDatabase database;
     MusicAdapter listAdapter;
@@ -25,13 +24,14 @@ public class SongListActivity extends ListActivity {
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.song_list);
-        songList = getListView();
-
         database = AppDatabase.getDatabase(getApplicationContext());
         allMusic = (ArrayList<Music>) database.musicDAO().getAllMusic();
 
         listAdapter = new MusicAdapter(this, R.layout.music_item, allMusic);
         setListAdapter(listAdapter);
+
+
+
 
 
 
@@ -47,6 +47,7 @@ public class SongListActivity extends ListActivity {
         int song = getResources().getIdentifier(songTitle, "raw", getPackageName());
         Intent intent = new Intent();
         intent.putExtra("song", song);
+        intent.putExtra("songTitle", songTitle);
         setResult(RESULT_OK, intent);
         finish();
 

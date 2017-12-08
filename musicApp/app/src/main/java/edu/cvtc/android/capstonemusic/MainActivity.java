@@ -2,14 +2,12 @@ package edu.cvtc.android.capstonemusic;
 
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
@@ -21,11 +19,10 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.io.ByteArrayInputStream;
-import com.google.android.gms.maps.MapView;
-import java.io.Console;
-import java.io.InputStream;
+
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
@@ -54,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AppDatabase database;
     private Genre genre;
     private Handler mHandler = new Handler();
+    private String currentSong;
 
     // Music Impl
     MediaMetadataRetriever songMetaData = new MediaMetadataRetriever();
@@ -95,8 +93,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listButton.setOnClickListener(this);
 
 
-
-        setupMusic(R.raw.judah_and_the_lion_insane);
+        setupMusic(R.raw.insane);
+        currentSong = "insane";
 
         MainActivity.this.runOnUiThread(new Runnable() {
 
@@ -104,10 +102,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
 
 
-                if (mediaPlayer != null) {
-                    int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
-                    seekBar.setProgress(mCurrentPosition);
-                }
+                  if (mediaPlayer != null) {
+                       int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                        seekBar.setProgress(mCurrentPosition);
+                  }
                 mHandler.postDelayed(this, 1000);
             }
         });
@@ -117,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     // This will get fired off when you click play and any other button.
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onClick(View view) {
 
@@ -134,10 +133,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             displayToast("The map button was pressed");
             launchActivity(MapsActivity.class);
         } else if (view == listButton) {
-
+            mediaPlayer.release();
+            mediaPlayer = null;
             Intent intent = new Intent(this, SongListActivity.class);
             startActivityForResult(intent, SONG_LIST_RESULT_CODE);
 
+
+        } else if (view == fastForwardButton) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+            List<Music> allMusic = database.musicDAO().getAllMusic();
+            Music correctSong = null;
+            for (Music song:allMusic){
+                if (Objects.equals(song.title, currentSong)) {
+                    if (song.id < allMusic.size() - 1) {
+                        correctSong = database.musicDAO().getMusic(song.id + 1).get(0);
+                    } else {
+                        correctSong = database.musicDAO().getMusic(0).get(0);
+                    }
+                }
+            }
+            currentSong = correctSong.title;
+            setupMusic(getResources().getIdentifier(correctSong.title, "raw", getPackageName()));
+        } else if (view == reverseButton) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+            List<Music> allMusic = database.musicDAO().getAllMusic();
+            Music correctSong = null;
+            for (Music song:allMusic){
+                if (Objects.equals(song.title, currentSong)) {
+                    if (song.id > 0) {
+                        correctSong = database.musicDAO().getMusic(song.id - 1).get(0);
+                    } else {
+                        correctSong = database.musicDAO().getMusic(allMusic.size() - 1).get(0);
+                    }
+                }
+            }
+            currentSong = correctSong.title;
+            setupMusic(getResources().getIdentifier(correctSong.title, "raw", getPackageName()));
         }
 
     }
@@ -150,10 +183,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (requestCode == SONG_LIST_RESULT_CODE) {
             if (resultCode == RESULT_OK) {
 
-                // get String data from Intent
-                int song = data.getIntExtra("song",R.raw.arma_puros_plus_nothing_else);
-
-                // set text view with string
+                int song = data.getIntExtra("song",R.raw.plus_nothing_else);
+                currentSong = data.getStringExtra("songTitle");
                 setupMusic(song);
             }
         }
@@ -216,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void setupMusic(int song) {
+        mediaPlayer = null;
         mediaPlayer = MediaPlayer.create(this, song);
 
         displayImage(song);

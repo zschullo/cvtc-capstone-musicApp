@@ -63,6 +63,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.cvtc.android.capstonemusic.MainActivity" />
         </activity>
+        <activity android:name=".SongListActivity" android:label="SongList">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.cvtc.android.capstonemusic.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
