@@ -2,14 +2,12 @@ package edu.cvtc.android.capstonemusic;
 
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
@@ -21,11 +19,10 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.io.ByteArrayInputStream;
-import com.google.android.gms.maps.MapView;
-import java.io.Console;
-import java.io.InputStream;
+
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
@@ -33,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton playButton;
     private ImageButton fastForwardButton;
     private ImageButton reverseButton;
+
+    private static final int SONG_LIST_RESULT_CODE = 0;
     private ImageView songImage;
 
     private ImageButton listButton;
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AppDatabase database;
     private Genre genre;
     private Handler mHandler = new Handler();
+    private String currentSong;
 
     // Music Impl
     MediaMetadataRetriever songMetaData = new MediaMetadataRetriever();
@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         reverseButton.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
 
+
         createDatabase();
 
         mapButton.setOnClickListener(this);
@@ -92,8 +93,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listButton.setOnClickListener(this);
 
 
-
-        setupMusic(R.raw.judah_and_the_lion_insane);
+        setupMusic(R.raw.insane);
+        currentSong = "insane";
 
         MainActivity.this.runOnUiThread(new Runnable() {
 
@@ -101,10 +102,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
 
 
-                if (mediaPlayer != null) {
-                    int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
-                    seekBar.setProgress(mCurrentPosition);
-                }
+                  if (mediaPlayer != null) {
+                       int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                        seekBar.setProgress(mCurrentPosition);
+                  }
                 mHandler.postDelayed(this, 1000);
             }
         });
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     // This will get fired off when you click play and any other button.
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onClick(View view) {
 
@@ -127,18 +129,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.pause);
             }
-
         } else if (view == mapButton) {
             displayToast("The map button was pressed");
-            Intent intent = new Intent(this, MapsActivity.class);
-            startActivity(intent);
-
+            launchActivity(MapsActivity.class);
         } else if (view == listButton) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+            Intent intent = new Intent(this, SongListActivity.class);
+            startActivityForResult(intent, SONG_LIST_RESULT_CODE);
 
-                launchActivity(SongListActivity.class);
+
+        } else if (view == fastForwardButton) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+            List<Music> allMusic = database.musicDAO().getAllMusic();
+            Music correctSong = null;
+            for (Music song:allMusic){
+                if (Objects.equals(song.title, currentSong)) {
+                    if (song.id < allMusic.size() - 1) {
+                        correctSong = database.musicDAO().getMusic(song.id + 1).get(0);
+                    } else {
+                        correctSong = database.musicDAO().getMusic(0).get(0);
+                    }
+                }
+            }
+            currentSong = correctSong.title;
+            setupMusic(getResources().getIdentifier(correctSong.title, "raw", getPackageName()));
+        } else if (view == reverseButton) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+            List<Music> allMusic = database.musicDAO().getAllMusic();
+            Music correctSong = null;
+            for (Music song:allMusic){
+                if (Objects.equals(song.title, currentSong)) {
+                    if (song.id > 0) {
+                        correctSong = database.musicDAO().getMusic(song.id - 1).get(0);
+                    } else {
+                        correctSong = database.musicDAO().getMusic(allMusic.size() - 1).get(0);
+                    }
+                }
+            }
+            currentSong = correctSong.title;
+            setupMusic(getResources().getIdentifier(correctSong.title, "raw", getPackageName()));
         }
 
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // check that it is the SecondActivity with an OK result
+        if (requestCode == SONG_LIST_RESULT_CODE) {
+            if (resultCode == RESULT_OK) {
+
+                int song = data.getIntExtra("song",R.raw.plus_nothing_else);
+                currentSong = data.getStringExtra("songTitle");
+                setupMusic(song);
+            }
+        }
     }
     private void launchActivity(Class activity) {
 
@@ -198,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void setupMusic(int song) {
+        mediaPlayer = null;
         mediaPlayer = MediaPlayer.create(this, song);
 
         displayImage(song);
@@ -257,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // manually enter it.
             final int random = new Random().nextInt((4 - 1) + 1) + 1;
 
-            String songName = fields[count].getName() + ".mp3";
+            String songName = fields[count].getName();
 
             database.musicDAO().addMusic(new Music(count,
                     songName,
