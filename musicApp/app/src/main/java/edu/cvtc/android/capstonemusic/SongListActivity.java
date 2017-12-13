@@ -20,6 +20,7 @@ public class SongListActivity extends ListActivity {
     private ArrayList<Music> allMusic;
     private AppDatabase database;
     MusicAdapter listAdapter;
+
     @Override
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,14 +30,6 @@ public class SongListActivity extends ListActivity {
 
         listAdapter = new MusicAdapter(this, R.layout.music_item, allMusic);
         setListAdapter(listAdapter);
-
-
-
-
-
-
-
-
 
 }
 
