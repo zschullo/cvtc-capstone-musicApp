@@ -67,7 +67,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.cvtc.android.capstonemusic.MainActivity" />
         </activity>
-
     </application>
 
 </manifest>
