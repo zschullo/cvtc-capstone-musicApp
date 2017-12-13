@@ -231,6 +231,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             progress = progress - 1610;
             progressBar.setProgress(progress);
             displayToast("A new song was unlocked!");
+            boolean unlock = false;
+             for (Music music:database.musicDAO().getAllMusic()) {
+                 if (music.unlocked == 0 && unlock == false){
+                     music.unlocked = 1;
+                     database.musicDAO().updateMusic(music);
+                     unlock = true;
+                 }
+             }
         } else {
             progress += Math.round(distanceTraveled);
             progressBar.setProgress(progress);
