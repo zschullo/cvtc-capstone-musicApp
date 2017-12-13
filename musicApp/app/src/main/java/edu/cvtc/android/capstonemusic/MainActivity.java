@@ -258,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
 
         if (view == playButton) {
-            displayToast("You've clicked play");
 
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
@@ -325,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 int song = data.getIntExtra("song",R.raw.plus_nothing_else);
                 currentSong = data.getStringExtra("songTitle");
                 setupMusic(song);
+                mediaPlayer.start();
             }
         }
     }
@@ -455,7 +455,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     0));
 
             music = database.musicDAO().getMusic(count).get(0);
-            //displayToast("Added " + music.title + ", GenreId: " + music.genreId);
         }
 
     }
