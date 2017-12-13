@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Genre genre;
     private Handler mHandler = new Handler();
     private String currentSong;
-
     LocationManager locationManager;
     private Location lastLocation;
     private Location currentLocation;
@@ -126,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
 
 
-                if (mediaPlayer != null) {
-                    int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
-                    seekBar.setProgress(mCurrentPosition);
-                }
+                  if (mediaPlayer != null) {
+                       int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                        seekBar.setProgress(mCurrentPosition);
+                  }
                 mHandler.postDelayed(this, 1000);
             }
         });
@@ -232,6 +231,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             progress = progress - 1610;
             progressBar.setProgress(progress);
             displayToast("A new song was unlocked!");
+            boolean unlock = false;
+             for (Music music:database.musicDAO().getAllMusic()) {
+                 if (music.unlocked == 0 && unlock == false){
+                     music.unlocked = 1;
+                     database.musicDAO().updateMusic(music);
+                     unlock = true;
+                 }
+             }
         } else {
             progress += Math.round(distanceTraveled);
             progressBar.setProgress(progress);

@@ -31,6 +31,7 @@ public class SongListActivity extends ListActivity {
         listAdapter = new MusicAdapter(this, R.layout.music_item, allMusic);
         setListAdapter(listAdapter);
 
+
 }
 
     @Override
