@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,8 +21,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private TextView playTextField;
     private LatLng latLng;
+    private ProgressBar progressBar;
 
     private Toast toast = null;
 
@@ -31,6 +32,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location currentLocation;
     private Location lastLocation;
     LocationManager locationManager;
+    private float distanceTraveled = 0;
+    private int progress = 0;
 
     @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -39,7 +42,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        playTextField = (TextView) findViewById(R.id.play);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -53,13 +56,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onLocationChanged(Location location) {
                 lastLocation = currentLocation;
-                displayToast("Location Changed");
-                displayToast("Last location = " + location.getLatitude() + " and Longitude = " + location.getLongitude());
                 currentLocation = location;
-//                float distanceTraveled = lastLocation.distanceTo(location);
-//                displayToast("Distance = " + distanceTraveled);
+
+                if (lastLocation != null && currentLocation != null) {
+                    distanceTraveled = lastLocation.distanceTo(location);
+                }
+
                 latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                playTextField.setText("Latitude = " + location.getLatitude() + " and Longitude = " + location.getLongitude());
+
+                //if (location.getSpeed() > 5) {
+                    updateProgressBar();
+                //}
 
                 updateMap();
             }
@@ -80,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         };
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000,1,locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000,1,locationListener);
 
     }
 
@@ -104,6 +111,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 20));
+    }
+
+    public void updateProgressBar() {
+        if (progress >= 1610) {
+            progress = progress - 1610;
+            progressBar.setProgress(progress);
+            displayToast("A new song was unlocked!");
+        } else {
+            progress += Math.round(distanceTraveled);
+            progressBar.setProgress(progress);
+        }
     }
 
     private void displayToast(String message) {

@@ -1,6 +1,7 @@
 package edu.cvtc.android.capstonemusic;
 
 import android.*;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
@@ -8,8 +9,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.tv.TvContract;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -20,9 +25,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -42,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ImageButton mapButton;
 
+    private ProgressBar progressBar;
 
     private TextView timeLabel;
     private TextView totalTimeLabel;
@@ -57,6 +66,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Handler mHandler = new Handler();
     private String currentSong;
 
+    LocationManager locationManager;
+    private Location lastLocation;
+    private Location currentLocation;
+    private float distanceTraveled;
+    private LatLng latLng;
+    private int progress;
+
     // Music Impl
     MediaMetadataRetriever songMetaData = new MediaMetadataRetriever();
     byte[] rawArt;
@@ -64,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     BitmapFactory.Options options = new BitmapFactory.Options();
 
 
+    @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timeLabel = (TextView) findViewById(R.id.timeInitial);
         totalTimeLabel = (TextView) findViewById(R.id.timeTotal);
         listButton = (ImageButton) findViewById(R.id.listButton);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 
         // Sets Listeners
@@ -108,15 +126,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
 
 
-                  if (mediaPlayer != null) {
-                       int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
-                        seekBar.setProgress(mCurrentPosition);
-                  }
+                if (mediaPlayer != null) {
+                    int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                    seekBar.setProgress(mCurrentPosition);
+                }
                 mHandler.postDelayed(this, 1000);
             }
         });
 
+        locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 
+        LocationListener locationListener = new LocationListener() {
+
+            @Override
+            public void onLocationChanged(Location location) {
+                lastLocation = currentLocation;
+                currentLocation = location;
+
+                if (lastLocation != null && currentLocation != null) {
+                    distanceTraveled = lastLocation.distanceTo(location);
+                }
+
+                latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+                //if (location.getSpeed() > 5) {
+                updateProgressBar();
+                //}
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+            }
+        };
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
 
     }
 
@@ -173,6 +227,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public void updateProgressBar() {
+        if (progress >= 1610) {
+            progress = progress - 1610;
+            progressBar.setProgress(progress);
+            displayToast("A new song was unlocked!");
+        } else {
+            progress += Math.round(distanceTraveled);
+            progressBar.setProgress(progress);
+        }
+    }
+
     // This will get fired off when you click play and any other button.
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -189,7 +254,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playButton.setImageResource(R.drawable.pause);
             }
         } else if (view == mapButton) {
-            displayToast("The map button was pressed");
             launchActivity(MapsActivity.class);
         } else if (view == listButton) {
             mediaPlayer.release();
