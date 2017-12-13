@@ -1,24 +1,36 @@
 package edu.cvtc.android.capstonemusic;
 
+import android.*;
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.tv.TvContract;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -38,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ImageButton mapButton;
 
+    private ProgressBar progressBar;
 
     private TextView timeLabel;
     private TextView totalTimeLabel;
@@ -52,6 +65,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Genre genre;
     private Handler mHandler = new Handler();
     private String currentSong;
+    LocationManager locationManager;
+    private Location lastLocation;
+    private Location currentLocation;
+    private float distanceTraveled;
+    private LatLng latLng;
+    private int progress;
 
     // Music Impl
     MediaMetadataRetriever songMetaData = new MediaMetadataRetriever();
@@ -60,11 +79,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     BitmapFactory.Options options = new BitmapFactory.Options();
 
 
+    @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getPermissionToUseLocationServices();
 
         songImage = (ImageView) findViewById(R.id.imageView);
 
@@ -77,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timeLabel = (TextView) findViewById(R.id.timeInitial);
         totalTimeLabel = (TextView) findViewById(R.id.timeTotal);
         listButton = (ImageButton) findViewById(R.id.listButton);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 
         // Sets Listeners
@@ -110,8 +133,108 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 
+        LocationListener locationListener = new LocationListener() {
 
+            @Override
+            public void onLocationChanged(Location location) {
+                lastLocation = currentLocation;
+                currentLocation = location;
+
+                if (lastLocation != null && currentLocation != null) {
+                    distanceTraveled = lastLocation.distanceTo(location);
+                }
+
+                latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+                //if (location.getSpeed() > 5) {
+                updateProgressBar();
+                //}
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+            }
+        };
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
+
+    }
+
+    // Identifier for the permission request
+    private static final int ACCESS_FINE_LOCATION_PERMISSION_REQUEST = 1;
+
+    // Called when the user is performing an action which requires the app to read the
+    // user's contacts
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void getPermissionToUseLocationServices() {
+        // 1) Use the support library version ContextCompat.checkSelfPermission(...) to avoid
+        // checking the build version since Context.checkSelfPermission(...) is only available
+        // in Marshmallow
+        // 2) Always check for permission (even if permission has already been granted)
+        // since the user can revoke permissions at any time through Settings
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            // The permission is NOT already granted.
+            // Check if the user has been asked about this permission already and denied
+            // it. If so, we want to give more explanation about why the permission is needed.
+            if (shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Show our own UI to explain to the user why we need to read the contacts
+                // before actually requesting the permission and showing the default UI
+            }
+
+            // Fire off an async request to actually get the permission
+            // This will show the standard permission request dialog UI
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_FINE_LOCATION_PERMISSION_REQUEST);
+
+        }
+
+    }
+
+    // Callback with the request from calling requestPermissions(...)
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+
+        if (requestCode == ACCESS_FINE_LOCATION_PERMISSION_REQUEST) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                displayToast("Location permission granted");
+            } else {
+                // showRationale = false if user clicks Never Ask Again, otherwise true
+                boolean showRationale = shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_FINE_LOCATION);
+
+                if (showRationale) {
+
+                } else {
+                    displayToast("Location permission denied");
+                }
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    public void updateProgressBar() {
+        if (progress >= 1610) {
+            progress = progress - 1610;
+            progressBar.setProgress(progress);
+            displayToast("A new song was unlocked!");
+        } else {
+            progress += Math.round(distanceTraveled);
+            progressBar.setProgress(progress);
+        }
     }
 
     // This will get fired off when you click play and any other button.
@@ -120,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
 
         if (view == playButton) {
-            displayToast("You've clicked play");
 
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
@@ -130,7 +252,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playButton.setImageResource(R.drawable.pause);
             }
         } else if (view == mapButton) {
-            displayToast("The map button was pressed");
             launchActivity(MapsActivity.class);
         } else if (view == listButton) {
             mediaPlayer.release();
@@ -186,6 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 int song = data.getIntExtra("song",R.raw.plus_nothing_else);
                 currentSong = data.getStringExtra("songTitle");
                 setupMusic(song);
+                mediaPlayer.start();
             }
         }
     }
@@ -316,7 +438,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     0));
 
             music = database.musicDAO().getMusic(count).get(0);
-            //displayToast("Added " + music.title + ", GenreId: " + music.genreId);
         }
 
     }

@@ -36,15 +36,17 @@ public class MusicAdapter extends ArrayAdapter<Music> {
         author.setText(music.artist);
         if (music.unlocked == 1){
             title.setTextColor(Color.GREEN);
+            title.setTextSize(25);
+
             author.setTextColor(Color.GREEN);
+            author.setTextSize(25);
         } else {
             title.setTextColor(Color.RED);
+            title.setTextSize(25);
+
             author.setTextColor(Color.RED);
+            author.setTextSize(25);
         }
-
-
-
-
 
         return convertView;
     }

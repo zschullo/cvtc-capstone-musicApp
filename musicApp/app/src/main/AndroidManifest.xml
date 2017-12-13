@@ -7,7 +7,6 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -29,21 +28,6 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".NewAppWidget">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/new_app_widget_info" />
-        </receiver>
-
-        <activity android:name=".NewAppWidgetConfigureActivity">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -63,6 +47,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.cvtc.android.capstonemusic.MainActivity" />
         </activity>
+
+        //Specify your AppWidgetProviderInfo XML file//
+
+        <receiver android:name="MyAppWidgetProvider" >
+            // Specify that the AppWidgetProvider accepts ACTION_APPWIDGET_UPDATE, which is the broadcast that’s sent whenever
+            // a new instance of this widget is instantiated and also whenever a widget requests an update. Both of these
+            // are events that the AppWidgetProvider class needs to be able to respond to
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
         <activity android:name=".SongListActivity" android:label="SongList">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

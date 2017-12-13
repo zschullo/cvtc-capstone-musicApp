@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:padding="@dimen/widget_margin"
+    android:background="#55000000">
+
+    <LinearLayout android:layout_width="match_parent"
+                android:layout_height="fill_parent">
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:src="@drawable/play" />
+
+        <ImageButton
+            android:id="@+id/forwardButton"
+            android:contentDescription="string/forward"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:src="@drawable/forward" />
+
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="wrap_content"
+        android:layout_height="fill_parent">
+
+        <!--<ProgressBar-->
+            <!--android:id="@+id/progressBar"-->
+            <!--style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="5px"-->
+            <!--android:progress="75"-->
+            <!--android:style="@android:style/Widget.ProgressBar.small"></ProgressBar>-->
+
+    </LinearLayout>
+
+</LinearLayout>
+
