@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private float distanceTraveled;
     private LatLng latLng;
     private int progress;
+    LocationListener locationListener;
 
     // Music Impl
     MediaMetadataRetriever songMetaData = new MediaMetadataRetriever();
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 
-        LocationListener locationListener = new LocationListener() {
+        locationListener = new LocationListener() {
 
             @Override
             public void onLocationChanged(Location location) {
@@ -172,6 +173,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        locationManager.removeUpdates(locationListener);
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    protected void onResume() {
+        super.onResume();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
     }
 
     // Identifier for the permission request
@@ -254,6 +268,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playButton.setImageResource(R.drawable.pause);
             }
         } else if (view == mapButton) {
+            Intent intent = new Intent(this, MapsActivity.class);
+            intent.putExtra("progress", progress);
             launchActivity(MapsActivity.class);
         } else if (view == listButton) {
             mediaPlayer.release();

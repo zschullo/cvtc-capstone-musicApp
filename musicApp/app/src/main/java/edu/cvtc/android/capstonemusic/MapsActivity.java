@@ -6,9 +6,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,10 +21,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
 
     private LatLng latLng;
     private ProgressBar progressBar;
+    private Button resetButton;
+    private TextView distanceTextView;
+    LocationListener locationListener;
 
     private Toast toast = null;
 
@@ -34,6 +39,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationManager locationManager;
     private float distanceTraveled = 0;
     private int progress = 0;
+    private int totalProgress = 0;
 
     @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -43,15 +49,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        resetButton = (Button) findViewById(R.id.resetButton);
+        distanceTextView = (TextView) findViewById(R.id.distanceText);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            progress = extras.getInt("progress");
+        }
+
         locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 
-        LocationListener locationListener = new LocationListener() {
+        locationListener = new LocationListener() {
 
             @Override
             public void onLocationChanged(Location location) {
@@ -64,7 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-                //if (location.getSpeed() > 5) {
+                //if (location.getSpeed() > 10) {
                     updateProgressBar();
                 //}
 
@@ -91,14 +104,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+
+
+    @SuppressLint("MissingPermission")
     @Override
     protected void onResume() {
         super.onResume();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000,1,locationListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        locationManager.removeUpdates(locationListener);
+
     }
 
     @Override
@@ -107,7 +126,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void updateMap() {
-        mMap.clear();
         mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 20));
@@ -119,9 +137,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             progressBar.setProgress(progress);
             displayToast("A new song was unlocked!");
         } else {
-            progress += Math.round(distanceTraveled);
+            int distanceRounded = Math.round(distanceTraveled);
+            progress += distanceRounded;
+            totalProgress += distanceRounded;
+            distanceTextView.setText(totalProgress + " meters");
             progressBar.setProgress(progress);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     private void displayToast(String message) {
@@ -130,6 +161,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (toast == null || toast.getView().getWindowVisibility() != View.VISIBLE) {
             toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
             toast.show();
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view == resetButton) {
+            mMap.clear();
+            totalProgress = 0;
+
         }
     }
 }

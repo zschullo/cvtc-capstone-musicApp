@@ -14,7 +14,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="80dp"
         tools:context="edu.cvtc.android.capstonemusic.MapsActivity" />
 
     <ProgressBar
@@ -32,6 +32,27 @@
         app:layout_constraintRight_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/map"
         android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/distanceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="30dp"
+        android:text="Distance"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintRight_toLeftOf="@id/resetButton"
+        app:layout_constraintTop_toBottomOf="@id/progressBar" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="120dp"
+        android:id="@+id/resetButton"
+        android:text="Reset"
+        app:layout_constraintRight_toLeftOf="parent"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progressBar"/>
 
 
 </android.support.constraint.ConstraintLayout>
